@@ -191,5 +191,29 @@ Board board_update(Board old, Move m)
 
     new.board[m.row][m.col] = m.turn;
 
+    // Take over opponents pieces
+    for (int i = m.row - 1; i <= m.row + 1; i++) {
+        for (int j = m.col - 1; j <= m.col + 1; j++) {
+
+            if (i == m.row && j == m.col)
+                continue;
+
+            int inc[] = {i - m.row, j - m.col};
+            int start[] = {m.row, m.col};
+            bool has_other_end = search_line(new.board, m.turn, start, inc);
+
+            // Fill up with current player's piece if other end is found
+            if (has_other_end) {
+                int x = start[0] + inc[0];
+                int y = start[1] + inc[1];
+                while (new.board[x][y] != m.turn) {
+                    new.board[x][y] = m.turn;
+                    x += inc[0];
+                    y += inc[1];
+                }
+            }
+        }
+    }
+
     return new;
 }
