@@ -19,31 +19,31 @@ Board board_init(void)
 
 void board_print(Board b)
 {
-    printf("#");
+    printf("\n┌───┬───┬───┬───┬───┬───┬───┬───┬───┐\n");
+    printf("│ # │");
     for (int i = 0; i < ROWS; i++) {
         if (DEBUG) 
-            printf(" %d", i);
+            printf(" %d │", i);
         else 
-            printf(" %d", i + 1);
+            printf(" %d │", i + 1);
     }
-    printf("\n");
+    printf("\n├───┼───┼───┼───┼───┼───┼───┼───┼───┤\n");
 
     for (int i = 0; i < ROWS; i++) {
         if (DEBUG) 
-            printf("%d", i);
+            printf("│ %d │", i);
         else 
-            printf("%d", i + 1);
+            printf("│ %d │", i + 1);
 
         for (int j = 0; j < COLS; j++) {
             char c = b.board[i][j];
-            switch (c) {
-                case A: printf(RED_BOLD); break;
-                case B: printf(GREEN_BOLD); break;
-                default: printf(RESET);
-            }
-            printf(" %c", c);
+            printf("%s %c %s", (c == A) ? RED_BOLD : GREEN_BOLD, c, RESET);
+            printf("│");
         }
-        printf("\n");
+        if (i == ROWS - 1)
+            printf("\n└───┴───┴───┴───┴───┴───┴───┴───┴───┘\n");
+        else
+            printf("\n├───┼───┼───┼───┼───┼───┼───┼───┼───┤\n");
     }
     printf(RESET);
 }
@@ -139,26 +139,33 @@ bool search_line(char arr[ROWS][COLS], char c, int start[], int inc[])
 
 void print_valid_moves(int **valid)
 {
-    printf("#");
+    printf("\n┌───┬───┬───┬───┬───┬───┬───┬───┬───┐\n");
+    printf("│ # │");
     for (int i = 0; i < ROWS; i++) {
-        if (DEBUG)
-            printf(" %d", i);
-        else
-            printf(" %d", i + 1);
+        if (DEBUG) 
+            printf(" %d │", i);
+        else 
+            printf(" %d │", i + 1);
     }
-    printf("\n");
+    printf("\n├───┼───┼───┼───┼───┼───┼───┼───┼───┤\n");
 
     for (int i = 0; i < ROWS; i++) {
-        if (DEBUG)
-            printf("%d", i);
+        if (DEBUG) 
+            printf("│ %d │", i);
+        else 
+            printf("│ %d │", i + 1);
+
+        for (int j = 0; j < COLS; j++) {
+            int num = valid[i][j];
+            printf("%s %d %s", (num == 1) ? GREEN_BOLD : "", num, RESET);
+            printf("│");
+        }
+        if (i == ROWS - 1)
+            printf("\n└───┴───┴───┴───┴───┴───┴───┴───┴───┘\n");
         else
-            printf("%d", i + 1);
-
-        for (int j = 0; j < COLS; j++) 
-            printf(" %d", valid[i][j]);
-
-        printf("\n");
+            printf("\n├───┼───┼───┼───┼───┼───┼───┼───┼───┤\n");
     }
+    printf(RESET);
 }
 
 Move get_move(Board b, char player)
