@@ -4,6 +4,8 @@
 #define RED_BOLD "\033[1;31m"
 #define GREEN_BOLD "\033[1;36m"
 #define RESET "\033[0m"
+#define A '+'
+#define B '*'
 
 typedef struct {
     char board[ROWS][COLS];

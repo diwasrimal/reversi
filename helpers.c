@@ -8,6 +8,10 @@ Board board_init(void)
     for (int i = 0; i < ROWS; i++)
         for (int j = 0; j < COLS; j++)
             b.board[i][j] = EMPTY;
+    b.board[3][3] = A;
+    b.board[4][4] = A;
+    b.board[3][4] = B;
+    b.board[4][3] = B;
     b.complete = false;
     return b;
 }
@@ -23,13 +27,16 @@ void board_print(Board b)
         printf("%d", i + 1);
         for (int j = 0; j < COLS; j++) {
             char c = b.board[i][j];
-            if (c == '+') printf(RED_BOLD);
-            if (c == '*') printf(GREEN_BOLD);
+            switch (c) {
+                case A: printf(RED_BOLD); break;
+                case B: printf(GREEN_BOLD); break;
+                default: printf(RESET);
+            }
             printf(" %c", c);
-            printf(RESET);
         }
         printf("\n");
     }
+    printf(RESET);
 }
 
 bool board_complete(Board b)

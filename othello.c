@@ -2,7 +2,7 @@
 
 int main(void)
 {
-    char players[] = {'+', '*'};
+    char players[] = {A, B};
 
     Board b = board_init();
     int round = 0;
