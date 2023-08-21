@@ -7,6 +7,13 @@
 #define A '+'
 #define B '*'
 
+#define DEBUG 0
+#if DEBUG
+#define DBPRINT(...) printf(__VA_ARGS__)
+#else
+#define DBPRINT(...)
+#endif
+
 typedef struct {
     char board[ROWS][COLS];
     bool complete;
@@ -15,11 +22,14 @@ typedef struct {
 typedef struct {
     int row;
     int col;
+    char turn;
 } Move;
 
 Board board_init(void);
 void board_print(Board b) ;
 bool board_complete(Board b) ;
-Move get_move(Board b);
-Board board_update(Board old, Move m, char turn);
-
+Move get_move(Board b, char player);
+Board board_update(Board old, Move m);
+int **valid_moves_for(char player, Board b);
+void print_valid_moves(int **valid);
+bool search_line(char arr[ROWS][COLS], char c, int start[], int inc[]);
