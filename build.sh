@@ -1,3 +1,3 @@
 #!/bin/sh
 
-cc -Wall -Wextra -o othello othello.c
+cc -Wall -Wextra -std=c11 -o reversi reversi.c
