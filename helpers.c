@@ -157,7 +157,7 @@ void print_valid_moves(int **valid)
 
         for (int j = 0; j < COLS; j++) {
             int num = valid[i][j];
-            printf("%s %d %s", (num == 1) ? GREEN_BOLD : "", num, RESET);
+            printf("%s %d %s", (num > 0) ? GREEN_BOLD : "", num, RESET);
             printf("│");
         }
         if (i == ROWS - 1)
