@@ -121,6 +121,67 @@ int **valid_moves_for(char player, Board b)
     return valid;
 }
 
+
+int vaild_move(Board b, Move m)
+{
+
+    if (b.board[m.row][m.col] != EMPTY) {
+        DBPRINT("Cell not empty!\n");
+        return 0;
+    }
+
+    // Count from how many sides move is valid
+    int valid = 0;
+
+    // Loop through all neighboring pieces
+    // Ensure that neighboring piece is opposing and
+    // has another supporting piece on other side
+    for (int i = m.row - 1; i <= m.row + 1; i++) {
+        for (int j = m.col - 1; j <= m.col + 1; j++) {
+
+            DBPRINT("\tNeighbor: [%d, %d]\n", i, j);
+
+            // Skip invalid indices
+            if (i < 0 || j < 0 || i > ROWS - 1 || j > COLS - 1) {
+                DBPRINT("\t\tinvalid indices\n");
+                continue;
+            }
+
+            // No need to check this piece
+            if (i == m.row && j == m.col) {
+                DBPRINT("\t\tno need to check this poiece\n");
+                continue;
+            }
+
+            // Continue if neighboring piece is not opposing
+            if (b.board[i][j] == m.turn || b.board[i][j] == EMPTY) {
+                DBPRINT("\t\tNot opposing piece\n");
+                continue;
+            }
+
+            // Check if we have supporting piece on other side
+            //                  \  |  /
+            //                   . . .
+            // [0,-1]+p[i,j] <-- . p . -->  p[i,j]+[0,1]
+            //                   . . .
+            //                  /  |  \
+            //                     |
+            //               p[i,j]+[1,0]
+            //
+            // Generally p[i,j] + [inc_x, inc_y]
+            // inc_x given by: x - i
+            // inc_y given by: y - j
+
+            int increment_matrix[] = {i - m.row, j - m.col};
+            int start[] = {m.row, m.col};
+            bool end_found = search_line(b.board, m.turn, start, increment_matrix);
+            if (end_found)
+                valid++;
+        }
+    }
+    return valid;
+}
+
 bool search_line(char arr[ROWS][COLS], char c, int start[], int inc[])
 {
     DBPRINT("\t\tSearching from [%d, %d] with matrix [%d, %d]\n", start[0], start[1], inc[0], inc[1]);
@@ -170,21 +231,22 @@ void print_valid_moves(int **valid)
 
 Move get_move(Board b, char player)
 {
-    int row, col;
-    int **valid_moves = valid_moves_for(player, b);
+    Move m;
+    m.turn = player;
 
     do {
         printf("Move (#row #col): ");
-        scanf("%d %d", &row, &col);
-        --row;
-        --col;
+        scanf("%d %d", &m.row, &m.col);
+        if (!DEBUG) {
+            --m.row;
+            --m.col;
+        }
     } while (
-        row < 0 || row > ROWS - 1 ||
-        col < 0 || col > COLS - 1 ||
-        !valid_moves[row][col]
+        m.row < 0 || m.row > ROWS - 1 ||
+        m.col < 0 || m.col > COLS - 1 ||
+        !vaild_move(b, m)
     );
 
-    Move m = {.row = row, .col = col, .turn = player};
     return m;
 }
 
