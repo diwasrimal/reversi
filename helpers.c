@@ -13,13 +13,15 @@ Board board_init(void)
     b.board[4][4] = A;
     b.board[3][4] = B;
     b.board[4][3] = B;
-    b.complete = false;
     return b;
 }
 
-void board_print(Board b)
+void board_print(Board b, char next_turn)
 {
-    printf("\n┌───┬───┬───┬───┬───┬───┬───┬───┬───┐\n");
+    printf("\n          %c: %d, %c: %d, Turn: %s%c%s\n", A, piece_count(b, A), 
+            B, piece_count(b, B), (next_turn == A) ? RED_BOLD : GREEN_BOLD, next_turn,
+            RESET);
+    printf("┌───┬───┬───┬───┬───┬───┬───┬───┬───┐\n");
     printf("│ # │");
     for (int i = 0; i < ROWS; i++) {
         if (DEBUG) 
@@ -68,6 +70,13 @@ int **valid_moves_for(char player, Board b)
         for (int j = 0; j < COLS; j++) {
             DBPRINT("On [%d, %d]\n", i, j);
 
+            // Cell must be empty to be valid
+            if (b.board[i][j] != EMPTY) {
+                DBPRINT("Cell is taken\n");
+                continue;
+            }
+
+
             // Loop through all neighboring cells
             for (int x = i - 1; x <= i + 1; x++) {
                 for (int y = j - 1; y <= j + 1; y++) {
@@ -81,7 +90,7 @@ int **valid_moves_for(char player, Board b)
 
                     // No need to check this piece
                     if (x == i && y == j) {
-                        DBPRINT("\t\tno need to check this poiece\n");
+                        DBPRINT("\t\tno need to check this piece\n");
                         continue;
                     }
 
@@ -90,19 +99,6 @@ int **valid_moves_for(char player, Board b)
                         DBPRINT("\t\tNot opposing piece\n");
                         continue;
                     }
-
-                    // Check if we have supporting piece on other side
-                    //                  \  |  / 
-                    //                   . . .
-                    // [0,-1]+p[i,j] <-- . p . -->  p[i,j]+[0,1]
-                    //                   . . .
-                    //                  /  |  \
-                    //                     |
-                    //               p[i,j]+[1,0]
-                    //
-                    // Generally p[i,j] + [inc_x, inc_y]
-                    // inc_x given by: x - i
-                    // inc_y given by: y - j
                     
                     int inc[] = {x - i, y - j};
                     int start[] = {i, j};
@@ -285,4 +281,27 @@ Board board_update(Board old, Move m)
     }
 
     return new;
+}
+
+int piece_count(Board b, char player)
+{
+    int count = 0;
+    for (int i = 0; i < ROWS; i++)
+        for (int j = 0; j < COLS; j++)
+            if (b.board[i][j] == player)
+                count++;
+    return count;
+}
+
+void print_winner(Board b)
+{
+    int count_a = piece_count(b, A);
+    int count_b = piece_count(b, B);
+
+    if (count_a > count_b)
+        printf("Winner: %c\n", A);
+    else if (count_b > count_a)
+        printf("Winner: %c\n", B);
+    else
+        puts("TIE");
 }

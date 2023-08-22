@@ -16,7 +16,6 @@
 
 typedef struct {
     char board[ROWS][COLS];
-    bool complete;
 } Board;
 
 typedef struct {
@@ -26,10 +25,13 @@ typedef struct {
 } Move;
 
 Board board_init(void);
-void board_print(Board b) ;
-bool board_complete(Board b) ;
-Move get_move(Board b, char player);
+void  board_print(Board b, char next_turn);
+bool  board_complete(Board b) ;
 Board board_update(Board old, Move m);
-int **valid_moves_for(char player, Board b);
-void print_valid_moves(int **valid);
-bool search_line(char arr[ROWS][COLS], char c, int start[], int inc[]);
+int   **valid_moves_for(char player, Board b);
+void  print_valid_moves(int **valid);
+bool  search_line(char arr[ROWS][COLS], char c, int start[], int inc[]);
+Move  get_move(Board b, char player);
+int   is_valid_move(Board b, Move m);
+int   piece_count(Board b, char player);
+void  print_winner(Board b);
