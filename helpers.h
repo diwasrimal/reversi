@@ -6,6 +6,7 @@
 #define RESET "\033[0m"
 #define A '+'
 #define B '*'
+#define OUT_OF_BOUNDS(i, j) ((i) < 0 || (i) >= ROWS || (j) < 0 || (j) >= COLS)
 
 #define DEBUG 0
 #if DEBUG

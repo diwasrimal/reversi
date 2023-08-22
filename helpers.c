@@ -83,7 +83,7 @@ int **valid_moves_for(char player, Board b)
                     DBPRINT("\tNeighbor: [%d, %d]\n", x, y);
 
                     // Skip invalid indices
-                    if (x < 0 || y < 0 || x > ROWS - 1 || y > COLS - 1) {
+                    if (OUT_OF_BOUNDS(x, y)) {
                         DBPRINT("\t\tinvalid indices\n");
                         continue;
                     }
@@ -138,7 +138,7 @@ int valid_move(Board b, Move m)
             DBPRINT("\tNeighbor: [%d, %d]\n", i, j);
 
             // Skip invalid indices
-            if (i < 0 || j < 0 || i > ROWS - 1 || j > COLS - 1) {
+            if (OUT_OF_BOUNDS(i, j)) {
                 DBPRINT("\t\tinvalid indices\n");
                 continue;
             }
@@ -184,7 +184,7 @@ bool search_line(char arr[ROWS][COLS], char c, int start[], int inc[])
 
     int i = start[0] + inc[0];
     int j = start[1] + inc[1];
-    while (i >= 0 && i < ROWS && j >= 0 && j < COLS) {
+    while (!OUT_OF_BOUNDS(i, j)) {
         DBPRINT("Checking arr[%d][%d]: %c\n", i, j, arr[i][j]);
         if (arr[i][j] == EMPTY) return false;
         if (arr[i][j] == c) return true;
@@ -237,11 +237,7 @@ Move get_move(Board b, char player)
             --m.row;
             --m.col;
         }
-    } while (
-        m.row < 0 || m.row > ROWS - 1 ||
-        m.col < 0 || m.col > COLS - 1 ||
-        !valid_move(b, m)
-    );
+    } while (OUT_OF_BOUNDS(m.row, m.col) || !valid_move(b, m));
 
     return m;
 }
