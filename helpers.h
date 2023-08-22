@@ -32,6 +32,6 @@ int   **valid_moves_for(char player, Board b);
 void  print_valid_moves(int **valid);
 bool  search_line(char arr[ROWS][COLS], char c, int start[], int inc[]);
 Move  get_move(Board b, char player);
-int   is_valid_move(Board b, Move m);
+int   valid_move(Board b, Move m);
 int   piece_count(Board b, char player);
 void  print_winner(Board b);

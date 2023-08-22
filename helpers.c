@@ -118,7 +118,7 @@ int **valid_moves_for(char player, Board b)
 }
 
 
-int vaild_move(Board b, Move m)
+int valid_move(Board b, Move m)
 {
 
     if (b.board[m.row][m.col] != EMPTY) {
@@ -240,7 +240,7 @@ Move get_move(Board b, char player)
     } while (
         m.row < 0 || m.row > ROWS - 1 ||
         m.col < 0 || m.col > COLS - 1 ||
-        !vaild_move(b, m)
+        !valid_move(b, m)
     );
 
     return m;
