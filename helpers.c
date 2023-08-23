@@ -68,7 +68,7 @@ bool board_complete(Board b)
 }
 
 
-Move get_move(Board b, char player)
+Move user_move(Board b, char player)
 {
     Move m;
     m.turn = player;
@@ -84,6 +84,29 @@ Move get_move(Board b, char player)
     } while (!m.valid);
 
     return m;
+}
+
+Move computer_move(Board b, char player)
+{
+    Move best = {.row = 0, .col = 0, .turn = player, .consumed_pieces = 0};
+
+    // Find the move which consumes most pieces
+    for (int i = 0; i < ROWS; i++) {
+        for (int j = 0; j < COLS; j++) {
+            Move m = {.row = i, .col = j, .turn = player};
+            check_move(b, &m);
+            if (!m.valid)
+                continue;
+            if (m.consumed_pieces > best.consumed_pieces)
+                best = m;
+        }
+    }
+
+    int r = (DEBUG) ? best.row : best.row + 1;
+    int c = (DEBUG) ? best.col : best.col + 1;
+    printf("\nComputer moves to [%d, %d]\n\n", r, c);
+
+    return best;
 }
 
 Board board_update(Board old, Move m)

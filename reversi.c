@@ -17,7 +17,7 @@ int main(void)
     while (!board_complete(b)) {
         char turn = players[round % 2];
         board_print(b, turn);
-        Move m = get_move(b, turn);
+        Move m = (round % 2 == 0) ? user_move(b, turn) : computer_move(b, turn);
         b = board_update(b, m);
         round++;
     }
