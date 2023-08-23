@@ -67,173 +67,6 @@ bool board_complete(Board b)
     return true;
 }
 
-int **valid_moves_for(char player, Board b)
-{
-    // Allocate memory
-    int **valid = calloc(sizeof(int*), ROWS);
-    for (size_t i = 0; i < ROWS; i++)
-        valid[i] = calloc(sizeof(int), COLS);
-
-    for (int i = 0; i < ROWS; i++) {
-        for (int j = 0; j < COLS; j++) {
-            DBPRINT("On [%d, %d]\n", i, j);
-
-            // Cell must be empty to be valid
-            if (b.board[i][j] != EMPTY) {
-                DBPRINT("Cell is taken\n");
-                continue;
-            }
-
-
-            // Loop through all neighboring cells
-            for (int x = i - 1; x <= i + 1; x++) {
-                for (int y = j - 1; y <= j + 1; y++) {
-                    DBPRINT("\tNeighbor: [%d, %d]\n", x, y);
-
-                    // Skip invalid indices
-                    if (OUT_OF_BOUNDS(x, y)) {
-                        DBPRINT("\t\tinvalid indices\n");
-                        continue;
-                    }
-
-                    // No need to check this piece
-                    if (x == i && y == j) {
-                        DBPRINT("\t\tno need to check this piece\n");
-                        continue;
-                    }
-
-                    // Continue if neighboring piece is not opposing
-                    if (b.board[x][y] == player || b.board[x][y] == EMPTY) {
-                        DBPRINT("\t\tNot opposing piece\n");
-                        continue;
-                    }
-                    
-                    int inc[] = {x - i, y - j};
-                    int start[] = {i, j};
-                    bool found = search_line(b.board, player, start, inc);
-                    if (found) {
-                        DBPRINT("\t\t[%d, %d] is valid\n", i, j);
-                        valid[i][j]++;
-                    } else {
-                        DBPRINT("\t\tNot found any matching piece on other side\n");
-                    }
-                }
-            }
-        }
-    }
-
-    return valid;
-}
-
-
-int valid_move(Board b, Move m)
-{
-
-    if (b.board[m.row][m.col] != EMPTY) {
-        DBPRINT("Cell not empty!\n");
-        return 0;
-    }
-
-    // Count from how many sides move is valid
-    int valid = 0;
-
-    // Loop through all neighboring pieces
-    // Ensure that neighboring piece is opposing and
-    // has another supporting piece on other side
-    for (int i = m.row - 1; i <= m.row + 1; i++) {
-        for (int j = m.col - 1; j <= m.col + 1; j++) {
-
-            DBPRINT("\tNeighbor: [%d, %d]\n", i, j);
-
-            // Skip invalid indices
-            if (OUT_OF_BOUNDS(i, j)) {
-                DBPRINT("\t\tinvalid indices\n");
-                continue;
-            }
-
-            // No need to check this piece
-            if (i == m.row && j == m.col) {
-                DBPRINT("\t\tno need to check this poiece\n");
-                continue;
-            }
-
-            // Continue if neighboring piece is not opposing
-            if (b.board[i][j] == m.turn || b.board[i][j] == EMPTY) {
-                DBPRINT("\t\tNot opposing piece\n");
-                continue;
-            }
-
-            // Check if we have supporting piece on other side
-            //                  \  |  /
-            //                   . . .
-            // [0,-1]+p[i,j] <-- . p . -->  p[i,j]+[0,1]
-            //                   . . .
-            //                  /  |  \
-            //                     |
-            //               p[i,j]+[1,0]
-            //
-            // Generally p[i,j] + [inc_x, inc_y]
-            // inc_x given by: x - i
-            // inc_y given by: y - j
-
-            int increment_matrix[] = {i - m.row, j - m.col};
-            int start[] = {m.row, m.col};
-            bool end_found = search_line(b.board, m.turn, start, increment_matrix);
-            if (end_found)
-                valid++;
-        }
-    }
-    return valid;
-}
-
-bool search_line(char arr[ROWS][COLS], char c, int start[], int inc[])
-{
-    DBPRINT("\t\tSearching from [%d, %d] with matrix [%d, %d]\n", start[0], start[1], inc[0], inc[1]);
-
-    int i = start[0] + inc[0];
-    int j = start[1] + inc[1];
-    while (!OUT_OF_BOUNDS(i, j)) {
-        DBPRINT("Checking arr[%d][%d]: %c\n", i, j, arr[i][j]);
-        if (arr[i][j] == EMPTY) return false;
-        if (arr[i][j] == c) return true;
-        i += inc[0];
-        j += inc[1];
-    }
-    return false;
-}
-
-void print_valid_moves(int **valid)
-{
-    printf("\n┌───┬───┬───┬───┬───┬───┬───┬───┬───┐\n");
-    printf("│ # │");
-    for (int i = 0; i < ROWS; i++) {
-        if (DEBUG) 
-            printf(" %d │", i);
-        else 
-            printf(" %d │", i + 1);
-    }
-    printf("\n├───┼───┼───┼───┼───┼───┼───┼───┼───┤\n");
-
-    for (int i = 0; i < ROWS; i++) {
-        if (DEBUG) 
-            printf("│ %d │", i);
-        else 
-            printf("│ %d │", i + 1);
-
-        for (int j = 0; j < COLS; j++) {
-            int num = valid[i][j];
-            if (num > 0) COLOR_GREEN;
-            printf(" %d ", num);
-            COLOR_RESET;
-            printf("│");
-        }
-        if (i == ROWS - 1)
-            printf("\n└───┴───┴───┴───┴───┴───┴───┴───┴───┘\n");
-        else
-            printf("\n├───┼───┼───┼───┼───┼───┼───┼───┼───┤\n");
-    }
-    COLOR_RESET;
-}
 
 Move get_move(Board b, char player)
 {
@@ -247,7 +80,8 @@ Move get_move(Board b, char player)
             --m.row;
             --m.col;
         }
-    } while (OUT_OF_BOUNDS(m.row, m.col) || !valid_move(b, m));
+        check_move(b, &m);
+    } while (!m.valid);
 
     return m;
 }
@@ -260,33 +94,69 @@ Board board_update(Board old, Move m)
         for (int j = 0; j < COLS; j++)
             new.board[i][j] = old.board[i][j];
 
+    // Place move
     new.board[m.row][m.col] = m.turn;
 
     // Take over opponents pieces
-    for (int i = m.row - 1; i <= m.row + 1; i++) {
-        for (int j = m.col - 1; j <= m.col + 1; j++) {
-
-            if (i == m.row && j == m.col)
-                continue;
-
-            int inc[] = {i - m.row, j - m.col};
-            int start[] = {m.row, m.col};
-            bool has_other_end = search_line(new.board, m.turn, start, inc);
-
-            // Fill up with current player's piece if other end is found
-            if (has_other_end) {
-                int x = start[0] + inc[0];
-                int y = start[1] + inc[1];
-                while (new.board[x][y] != m.turn) {
-                    new.board[x][y] = m.turn;
-                    x += inc[0];
-                    y += inc[1];
-                }
-            }
-        }
-    }
+    for (int i = 0; i < m.consumed_pieces; i++)
+        new.board[m.consumed_points[i].x][m.consumed_points[i].y] = m.turn;
 
     return new;
+}
+
+void check_move(Board b, Move *m)
+{
+    char supporting_piece = m->turn;
+    m->consumed_pieces = 0;
+
+    // Move will be invalid if out of bounds or not empty
+    if (OUT_OF_BOUNDS(m->row, m->col) || b.board[m->row][m->col] != EMPTY) {
+        m->valid = false;
+        return;
+    }
+
+    // Loop through neighboring points
+    for (int i = m->row - 1; i <= m->row + 1; i++) {
+        for (int j = m->col - 1; j <= m->col + 1; j++) {
+
+            if (OUT_OF_BOUNDS(i, j))
+                continue;
+            if (i == m->row && j == m->col)
+                continue;
+
+            // Adjacent cells should be opposing and not empty
+            if (b.board[i][j] == supporting_piece || b.board[i][j] == EMPTY)
+                continue;
+
+
+            // Coordinates of given move and one neighboring
+            // point forms form a straight line
+            // Check if supporting piece exists along that line
+            //    \  |  /
+            //     . . .
+            // --- . m . - x -->
+            //     . . .   ^ supporting piece
+            //    /  |  \
+
+            // Movement vector to shift the point towards a direction
+            int m_vec[] = {i - m->row, j - m->col};
+            int x = m->row + m_vec[0];
+            int y = m->col + m_vec[1]; 
+            int in_between = 0;
+
+            while (!OUT_OF_BOUNDS(x, y) && b.board[x][y] != EMPTY) {
+                if (b.board[x][y] == supporting_piece) {
+                    m->consumed_pieces += in_between;
+                    break;
+                }
+                Point p = {.x = x, .y = y};
+                m->consumed_points[m->consumed_pieces + (in_between++)] = p;
+                x += m_vec[0];
+                y += m_vec[1];
+            }
+         }
+    }
+    m->valid = (m->consumed_pieces > 0);
 }
 
 int piece_count(Board b, char player)
