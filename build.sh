@@ -1,3 +1,4 @@
 #!/bin/sh
 
-cc -Wall -Wextra -std=c11 -o reversi reversi.c
+target=${1:-reversi}
+cc -Wall -Wextra -std=c11 -o $target "$target.c"
