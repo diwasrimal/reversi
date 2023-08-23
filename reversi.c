@@ -1,9 +1,14 @@
 #include "helpers.c"
-#include <time.h>
-
 
 int main(void)
 {
+    // Set console code page to UTF-8  on Windows
+    #ifdef _WIN32
+	    hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	    UINT old_cp = GetConsoleOutputCP();
+	    SetConsoleOutputCP(CP_UTF8);
+    #endif
+
     char players[] = {A, B};
 
     Board b = board_init();
@@ -20,8 +25,14 @@ int main(void)
     }
 
     board_print(b, players[round % 2]);
-
     print_winner(b);
+
+	// Rest code page to original value
+	#ifdef _WIN32
+		SetConsoleOutputCP(old_cp);
+	#endif
+
+    return 0;
 }
 
 

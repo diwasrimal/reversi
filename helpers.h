@@ -1,9 +1,6 @@
 #define ROWS 8
 #define COLS ROWS
 #define EMPTY ' '
-#define RED_BOLD "\033[1;31m"
-#define GREEN_BOLD "\033[1;36m"
-#define RESET "\033[0m"
 #define A '+'
 #define B '*'
 #define OUT_OF_BOUNDS(i, j) ((i) < 0 || (i) >= ROWS || (j) < 0 || (j) >= COLS)
@@ -13,6 +10,21 @@
 #define DBPRINT(...) printf(__VA_ARGS__)
 #else
 #define DBPRINT(...)
+#endif
+
+/* Colors for Windows */
+#ifdef _WIN32
+#include <windows.h>
+#define COLOR_RED		SetConsoleTextAttribute(hConsole, FOREGROUND_RED)
+#define COLOR_GREEN		SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN)
+#define COLOR_RESET		SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE)
+HANDLE hConsole;
+
+/* For *nix */
+#else
+#define COLOR_RED printf("\033[31m")
+#define COLOR_GREEN printf("\033[36m")
+#define COLOR_RESET printf("\033[0m")
 #endif
 
 typedef struct {

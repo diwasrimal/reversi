@@ -18,9 +18,14 @@ Board board_init(void)
 
 void board_print(Board b, char next_turn)
 {
-    printf("\n          %c: %d, %c: %d, Turn: %s%c%s\n", A, piece_count(b, A), 
-            B, piece_count(b, B), (next_turn == A) ? RED_BOLD : GREEN_BOLD, next_turn,
-            RESET);
+    // Show count of pieces and turn
+    printf("          %c: %d, %c: %d", A, piece_count(b, A), B, piece_count(b, B));
+    printf(", Turn: ");
+    if (next_turn == A) COLOR_RED;
+    if (next_turn == B) COLOR_GREEN;
+    printf("%c\n", next_turn);
+    COLOR_RESET;
+
     printf("┌───┬───┬───┬───┬───┬───┬───┬───┬───┐\n");
     printf("│ # │");
     for (int i = 0; i < ROWS; i++) {
@@ -39,7 +44,10 @@ void board_print(Board b, char next_turn)
 
         for (int j = 0; j < COLS; j++) {
             char c = b.board[i][j];
-            printf("%s %c %s", (c == A) ? RED_BOLD : GREEN_BOLD, c, RESET);
+            if (c == A) COLOR_RED;
+            if (c == B) COLOR_GREEN;
+            printf(" %c ", c);
+            COLOR_RESET;
             printf("│");
         }
         if (i == ROWS - 1)
@@ -47,7 +55,7 @@ void board_print(Board b, char next_turn)
         else
             printf("\n├───┼───┼───┼───┼───┼───┼───┼───┼───┤\n");
     }
-    printf(RESET);
+    COLOR_RESET;
 }
 
 bool board_complete(Board b)
@@ -214,7 +222,9 @@ void print_valid_moves(int **valid)
 
         for (int j = 0; j < COLS; j++) {
             int num = valid[i][j];
-            printf("%s %d %s", (num > 0) ? GREEN_BOLD : "", num, RESET);
+            if (num > 0) COLOR_GREEN;
+            printf(" %d ", num);
+            COLOR_RESET;
             printf("│");
         }
         if (i == ROWS - 1)
@@ -222,7 +232,7 @@ void print_valid_moves(int **valid)
         else
             printf("\n├───┼───┼───┼───┼───┼───┼───┼───┼───┤\n");
     }
-    printf(RESET);
+    COLOR_RESET;
 }
 
 Move get_move(Board b, char player)
